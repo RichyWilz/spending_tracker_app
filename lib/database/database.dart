@@ -1,8 +1,8 @@
 import 'package:sqflite/sqflite.dart'; // Importing the sqflite package for working with SQLite databases
 import 'package:path/path.dart'; // Importing the path package for working with file paths
 import 'package:flutter/material.dart';
-import 'package:spend_app/database/expense model.dart';
-import '/database/month_view model.dart';
+import 'package:spend_app/database/expense_model.dart';
+import '/database/month_view_model.dart';
 
 
 class DatabaseHelper {
@@ -98,4 +98,19 @@ CREATE TABLE expense (
       return Expense.fromMap(expenseMaps[i]);
     });
   }
+
+  Future<int> calculateTotalExpenses(int monthId) async {
+    final db = await instance.database;
+    final List<Map<String, dynamic>> sums = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM expense WHERE months_id = ?',
+      [monthId],
+    );
+
+    if (sums.isNotEmpty && sums[0]['total'] != null) {
+      return sums[0]['total'] as int;
+    } else {
+      return 0;
+    }
+  }
 }
+

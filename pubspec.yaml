@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   sqflite: any
+  intl: any
   path: any
 
 
