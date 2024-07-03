@@ -55,35 +55,91 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                Expense expense = snapshot.data![index];
-                return ListTile(
-                  title: Text(expense.reason),
-                  subtitle: Text('${expense.date} - \$${expense.amount}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          // Implement edit functionality
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          // Implement delete functionality
-                          // For example:
-                          // DatabaseHelper.instance.deleteExpense(expense.id);
-                          // Then refresh the list of expenses
-                        },
-                      ),
-                    ],
+            return Column(
+              children: [
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
-                );
-              },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          "hello",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18.0,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4.0),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text("rororr"),
+                        ),
+                        SizedBox(height: 4.0),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text("hehe"),
+                        ),
+                        SizedBox(height: 4.0),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text("rilli"),
+                        ),
+                        SizedBox(height: 8.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                // Implement delete functionality
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () {
+                                // Implement edit functionality
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      Expense expense = snapshot.data![index];
+                      return ListTile(
+                        title: Text(expense.reason),
+                        subtitle: Text('${expense.date} - \$${expense.amount}'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () {
+                                // Implement edit functionality
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                // Implement delete functionality
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             );
           } else {
             return const Center(child: Text('No expenses found'));
@@ -93,7 +149,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // Handle "New Expense" action
-          showAddExpenseDialog(context, refreshExpenses);
+          showAddExpenseDialog(context, widget.selectedMonth.monthsId, refreshExpenses);
         },
         icon: const Icon(Icons.add),
         label: const Text('New Expense'),

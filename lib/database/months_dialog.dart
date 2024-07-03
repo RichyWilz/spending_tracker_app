@@ -1,16 +1,22 @@
 import '/database/database.dart';
 import '/database/month_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart'; // Importing the sqflite package for working with SQLite databases
-import 'package:path/path.dart'; // Importing the path package for working with file paths
+// import 'package:sqflite/sqflite.dart'; // Importing the sqflite package for working with SQLite databases
+// import 'package:path/path.dart'; // Importing the path package for working with file paths
 
 // add_month_dialog.dart
 
 // Define TextEditingControllers
-final TextEditingController _monthController = TextEditingController();
+// final TextEditingController _monthController = TextEditingController();
 final TextEditingController _yearController = TextEditingController();
 final TextEditingController _initialBalanceController = TextEditingController();
-final TextEditingController _finalBalanceController = TextEditingController();
+// final TextEditingController _finalBalanceController = TextEditingController();
+
+final List<String> months = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+String? selectedMonth;
 
 void showAddMonthDialog(BuildContext context, Function refreshMonths) {
   showDialog(
@@ -22,9 +28,19 @@ void showAddMonthDialog(BuildContext context, Function refreshMonths) {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextField(
-                controller: _monthController,
+              DropdownButtonFormField<String>(
+                value: selectedMonth,
                 decoration: InputDecoration(labelText: 'Month'),
+                onChanged: (String? newValue) {
+                  // Update the selectedMonth with the new value
+                  selectedMonth = newValue;
+                },
+                items: months.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
               TextField(
                 controller: _yearController,
@@ -50,7 +66,7 @@ void showAddMonthDialog(BuildContext context, Function refreshMonths) {
             child: Text('Save'),
               onPressed: () async {
                 final month = Month(
-                  month: _monthController.text,
+                  month: selectedMonth ?? "Default Month",
                   year: int.parse(_yearController.text),
                   initialBalance: int.parse(_initialBalanceController.text),
                   finalBalance: 0,

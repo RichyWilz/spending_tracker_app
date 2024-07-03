@@ -21,6 +21,10 @@ class DatabaseHelper {
     return _database!; // Return the initialized database instance
   }
 
+  Future<void> _onConfigure(Database db) async {
+    await db.execute('PRAGMA foreign_keys = ON');
+  }
+
   Future<Database> _initDB(String filePath) async {
     final dbPath =
     await getDatabasesPath(); // Get the path to the directory where databases are stored
@@ -29,8 +33,9 @@ class DatabaseHelper {
 
     return await openDatabase(path,
         version: 1,
-        onCreate:
-        _createDB); // Open the database at the specified path, with version 1, and call the _createDB function when creating the database
+        onCreate: _createDB,
+        onConfigure: _onConfigure,  //line i added
+    ); // Open the database at the specified path, with version 1, and call the _createDB function when creating the database
   }
 
   Future _createDB(Database db, int version) async {

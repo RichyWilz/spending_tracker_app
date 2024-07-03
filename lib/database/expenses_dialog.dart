@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:spend_app/expense_screen.dart';
 
-void showAddExpenseDialog(BuildContext context, Function refreshExpenses) {
+void showAddExpenseDialog(BuildContext context,monthId, Function refreshExpenses) {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -53,6 +53,7 @@ void showAddExpenseDialog(BuildContext context, Function refreshExpenses) {
             child: const Text('Save'),
             onPressed: () async {
               final expense = Expense(
+                monthsId: monthId,
                 date: _dateController.text,
                 amount: int.parse(_amountController.text),
                 reason: _reasonController.text,
