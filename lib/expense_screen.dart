@@ -45,7 +45,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expenses for ${widget.selectedMonth.month}, ${widget.selectedMonth.year}'),
+        title: Text('Expenses for ${widget.selectedMonth.month},${widget.selectedMonth.year}'),
       ),
       body: FutureBuilder<List<Expense>>(
         future: expensesFuture,

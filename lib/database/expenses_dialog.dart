@@ -51,19 +51,29 @@ void showAddExpenseDialog(BuildContext context, Function refreshExpenses) {
           ),
           TextButton(
             child: const Text('Save'),
-            onPressed: () {
+            onPressed: () async {
+              final expense = Expense(
+                date: _dateController.text,
+                amount: int.parse(_amountController.text),
+                reason: _reasonController.text,
+                balance: 0,
+              );
+              await DatabaseHelper.instance.createExpense(expense.toMap());
+              refreshExpenses();
+              Navigator.of(context).pop();
+              },
               // Here, you would collect the data from the controllers
               // and use your method to insert it into the database.
               // For example:
-              DatabaseHelper.instance.createExpense({
-                'date': _dateController.text,
-                'amount': int.parse(_amountController.text),
-                'reason': _reasonController.text,
-                // You might need to add 'months_id' or other fields as required
-              });
-              refreshExpenses();
-              Navigator.of(context).pop();
-            },
+              // DatabaseHelper.instance.createExpense({
+              //   'date': _dateController.text,
+              //   'amount': int.parse(_amountController.text),
+              //   'reason': _reasonController.text,
+              //   // You might need to add 'months_id' or other fields as required
+              // });
+            //   refreshExpenses();
+            //   Navigator.of(context).pop();
+            // },
           ),
         ],
       );

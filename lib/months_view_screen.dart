@@ -46,7 +46,7 @@ class _MonthsScreenState extends State<MonthsScreen> {
                 final month = snapshot.data![index];
                 return Card(
                   child: ListTile(
-                    title: Text('${month.month} ${month.year}'),
+                    title: Text('${month.month} ${month.year} ${month.monthsId} ${month.initialBalance} ${month.finalBalance}'),
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'edit') {
