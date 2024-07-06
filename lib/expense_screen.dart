@@ -4,6 +4,9 @@ import 'package:spend_app/months_view_screen.dart';
 import '/database/month_view_model.dart';
 import '/database/database.dart';
 import '/database/expenses_dialog.dart';
+import '/database/deleteexpense_dialog.dart';
+import '/database/editexpense_dialog.dart';
+
 
 class ExpensesWidget extends StatefulWidget {
   final Month selectedMonth;
@@ -23,7 +26,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
     super.initState();
     if (widget.selectedMonth.monthsId != null) {
       fetchExpensesForMonth();
-      calculateTotalExpenses();
+      // calculateTotalExpenses();
     }
   }
 
@@ -37,15 +40,48 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
     expensesFuture = DatabaseHelper.instance.getExpensesByMonthId(widget.selectedMonth.monthsId!);
   }
 
-  void calculateTotalExpenses() {
-    totalExpensesFuture = DatabaseHelper.instance.calculateTotalExpenses(widget.selectedMonth.monthsId!);
-  }
+  // void calculateTotalExpenses() {
+  //   totalExpensesFuture = DatabaseHelper.instance.calculateTotalExpenses(widget.selectedMonth.monthsId!);
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Expenses for ${widget.selectedMonth.month},${widget.selectedMonth.year}'),
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: (String value) {
+              // Handle your action on selection here
+              print(value); // For example, print the selected week
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'Week 1',
+                  child: Text('Week 1'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Week 2',
+                  child: Text('Week 2'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Week 3',
+                  child: Text('Week 3'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Week 4',
+                  child: Text('Week 4'),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Week 5',
+                  child: Text('Week 5'),
+                ),
+              ];
+            },
+            icon: Icon(Icons.sort),
+          ),
+        ],
       ),
       body: FutureBuilder<List<Expense>>(
         future: expensesFuture,
@@ -66,7 +102,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
                     child: Column(
                       children: <Widget>[
                         Text(
-                          "hello",
+                          "Initial Deposit: UGX ${widget.selectedMonth.deposit}",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18.0,
@@ -76,18 +112,18 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
                         SizedBox(height: 4.0),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text("rororr"),
+                          child: Text("Overall Balance: UGX  ${widget.selectedMonth.finalBalance}"),
                         ),
                         SizedBox(height: 4.0),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text("hehe"),
+                          child: Text("Monthly Expense of ${widget.selectedMonth.month} of ${widget.selectedMonth.year}"),
                         ),
-                        SizedBox(height: 4.0),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text("rilli"),
-                        ),
+                        // SizedBox(height: 4.0),
+                        // Align(
+                        //   alignment: Alignment.centerLeft,
+                        //   child: Text("rilli"),
+                        // ),
                         SizedBox(height: 8.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,25 +151,30 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       Expense expense = snapshot.data![index];
-                      return ListTile(
-                        title: Text(expense.reason),
-                        subtitle: Text('${expense.date} - \$${expense.amount}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () {
-                                // Implement edit functionality
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                // Implement delete functionality
-                              },
-                            ),
-                          ],
+                      return  Card(
+                        child: ListTile(
+                          title: Text(expense.date),
+                          subtitle: Text('Spent: UGX ${expense.amount}\nBalance: UGX ${expense.balance}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  showEditExpenseDialog(context, widget.selectedMonth ,expense, refreshExpenses);
+                                  // Implement edit functionality
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  // Implement delete functionality
+                                  showDeleteExpenseDialog(context,widget.selectedMonth, expense, refreshExpenses);
+                                },
+                              ),
+                            ],
+                          ),
+                          // onTap: ,
                         ),
                       );
                     },
@@ -149,7 +190,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // Handle "New Expense" action
-          showAddExpenseDialog(context, widget.selectedMonth.monthsId, refreshExpenses);
+          showAddExpenseDialog(context, widget.selectedMonth, refreshExpenses);
         },
         icon: const Icon(Icons.add),
         label: const Text('New Expense'),

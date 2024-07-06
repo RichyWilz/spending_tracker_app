@@ -1,10 +1,19 @@
+import 'package:sqflite/sqflite.dart';
+
 import '/database/database.dart';
 import '/database/expense_model.dart';
+import '/database/month_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:spend_app/expense_screen.dart';
 
-void showAddExpenseDialog(BuildContext context,monthId, Function refreshExpenses) {
+final List<String> weeklist = [
+  'Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'
+];
+String? selectedWeek;
+
+// void showAddExpenseDialog(BuildContext context,monthId, Function refreshExpenses) {
+void showAddExpenseDialog(BuildContext context,Month month, Function refreshExpenses) {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -25,6 +34,20 @@ void showAddExpenseDialog(BuildContext context,monthId, Function refreshExpenses
                 decoration: InputDecoration(
                   hintText: "Date (YYYY-MM-DD)",
                 ),
+              ),
+              DropdownButtonFormField<String>(
+                value: selectedWeek,
+                decoration: InputDecoration(labelText: 'Week'),
+                onChanged: (String? newValue) {
+                  // Update the selectedMonth with the new value
+                  selectedWeek = newValue;
+                },
+                items: weeklist.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
               TextField(
                 controller: _amountController,
@@ -53,14 +76,31 @@ void showAddExpenseDialog(BuildContext context,monthId, Function refreshExpenses
             child: const Text('Save'),
             onPressed: () async {
               final expense = Expense(
-                monthsId: monthId,
+                monthsId: month.monthsId,
+                week: selectedWeek ?? 'Default Week',
                 date: _dateController.text,
-                amount: int.parse(_amountController.text),
+                amount: double.parse(_amountController.text),
                 reason: _reasonController.text,
-                balance: 0,
+                balance: month.finalBalance - double.parse(_amountController.text),
               );
               await DatabaseHelper.instance.createExpense(expense.toMap());
+              await DatabaseHelper.instance.calculateAdjustedBalanceForExpense(expense.dayId!, month.monthsId!, month.deposit);
               refreshExpenses();
+
+
+
+              double fbalance = await DatabaseHelper.instance.calculateTotalExpenses(month.monthsId!);
+              final db = await DatabaseHelper.instance.database;
+              await db.update(
+                'months',
+                {
+                  'finalBalance': month.deposit-fbalance,
+                },
+                where: 'months_id = ?',
+                whereArgs: [month.monthsId],
+              );
+              await DatabaseHelper.instance.getMonths();
+
               Navigator.of(context).pop();
               },
               // Here, you would collect the data from the controllers

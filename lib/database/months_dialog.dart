@@ -1,5 +1,6 @@
 import '/database/database.dart';
 import '/database/month_view_model.dart';
+import '/database/expense_model.dart';
 import 'package:flutter/material.dart';
 // import 'package:sqflite/sqflite.dart'; // Importing the sqflite package for working with SQLite databases
 // import 'package:path/path.dart'; // Importing the path package for working with file paths
@@ -65,10 +66,12 @@ void showAddMonthDialog(BuildContext context, Function refreshMonths) {
           TextButton(
             child: Text('Save'),
               onPressed: () async {
+                // final expense = Expense();
+                // double balance = await DatabaseHelper.instance.calculateTotalExpenses(expense)
                 final month = Month(
                   month: selectedMonth ?? "Default Month",
                   year: int.parse(_yearController.text),
-                  initialBalance: int.parse(_initialBalanceController.text),
+                  deposit: double.parse(_initialBalanceController.text),
                   finalBalance: 0,
                 );
                 await DatabaseHelper.instance.createMonth(month.toMap());

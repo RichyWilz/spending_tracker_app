@@ -43,6 +43,8 @@ class DatabaseHelper {
         'INTEGER PRIMARY KEY AUTOINCREMENT'; // Constant for defining the data type of the primary key column
     const intType =
         'INTEGER NOT NULL'; // Constant for defining the data type of integer columns
+    const floatType =
+        'REAL NOT NULL';
     const textType =
         'TEXT NOT NULL'; // Constant for defining the data type of text columns
 
@@ -51,8 +53,8 @@ CREATE TABLE months (
   months_id $idType,
   month $textType,
   year $intType,
-  initial_balance $intType,
-  final_balance $intType
+  deposit $floatType,
+  finalBalance $floatType,
 )
 '''); // Execute a SQL statement to create a "months" table with the specified columns and data types
 
@@ -60,10 +62,11 @@ CREATE TABLE months (
 CREATE TABLE expense (
   day_id $idType,
   months_id $intType,
+  week $textType,
   date $textType,
-  amount $intType,
+  amount $floatType,
   reason $textType,
-  balance $intType,
+  balance $floatType,
   FOREIGN KEY (months_id) REFERENCES months (months_id) ON DELETE CASCADE
 )
 '''); // Execute a SQL statement to create an "expense" table with the specified columns and data types, and a foreign key constraint
@@ -104,7 +107,7 @@ CREATE TABLE expense (
     });
   }
 
-  Future<int> calculateTotalExpenses(int monthId) async {
+  Future<double> calculateTotalExpenses(int monthId) async {
     final db = await instance.database;
     final List<Map<String, dynamic>> sums = await db.rawQuery(
       'SELECT SUM(amount) as total FROM expense WHERE months_id = ?',
@@ -112,10 +115,44 @@ CREATE TABLE expense (
     );
 
     if (sums.isNotEmpty && sums[0]['total'] != null) {
-      return sums[0]['total'] as int;
+      return sums[0]['total'] as double;
     } else {
       return 0;
     }
+  }
+
+  Future<double> calculateAdjustedBalanceForExpense(int expenseId, int monthId,monthDeposit) async {
+    final db = await instance.database;
+
+    // Assuming you have a method to get the monthId for a given expenseId
+    // int monthId = await getMonthIdForExpenses(expenseId);
+
+    // Calculate the sum of expenses with IDs less than the specified expenseId
+    final List<Map<String, dynamic>> expenseSum = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM expense WHERE day_id < ? AND months_id = ?',
+      [expenseId, monthId],
+    );
+
+    // Retrieve the initial deposit for the month
+    // final List<Map<String, dynamic>> monthDeposit = await db.query(
+    //   'months',
+    //   columns: ['deposit'],
+    //   where: 'months_id = ?',
+    //   whereArgs: [monthId],
+    // );
+
+    double totalExpenses = 0.0;
+    if (expenseSum.isNotEmpty && expenseSum[0]['total'] != null) {
+      totalExpenses = (expenseSum[0]['total'] as num).toDouble();
+    }
+
+    double initialDeposit = 0.0;
+    if (monthDeposit.isNotEmpty && monthDeposit[0]['deposit'] != null) {
+      initialDeposit = (monthDeposit[0]['deposit'] as num).toDouble();
+    }
+
+    // Subtract the total expenses from the initial deposit
+    return initialDeposit - totalExpenses;
   }
 }
 

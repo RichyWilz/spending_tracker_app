@@ -4,11 +4,12 @@ class Expense {
   final int? dayId;
   final int? monthsId;
   final String date;
-  final int amount;
+  final double amount;
   final String reason;
-  final int balance;
+  final double balance;
+  final String week;
 
-  Expense({this.dayId, this.monthsId, required this.date, required this.amount, required this.reason, required this.balance});
+  Expense({this.dayId, this.monthsId, required this.date, required this.amount, required this.reason, required this.balance, required this.week});
 
   Map<String, dynamic> toMap() {
     return {
@@ -18,6 +19,7 @@ class Expense {
       'amount': amount,
       'reason': reason,
       'balance': balance,
+      'week': week,
     };
   }
 
@@ -29,6 +31,7 @@ class Expense {
       amount: map['amount'],
       reason: map['reason'],
       balance: map['balance'],
+      week: map['week'],
     );
   }
 }

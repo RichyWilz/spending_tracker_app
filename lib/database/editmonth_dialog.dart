@@ -2,11 +2,17 @@ import '/database/database.dart';
 import '/database/month_view_model.dart';
 import 'package:flutter/material.dart';
 
+final List<String> months = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+String? selectedMonth;
+
 void showEditMonthDialog(BuildContext context, Month month, Function() onMonthUpdated) {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController monthController = TextEditingController(text: month.month);
+  // TextEditingController monthController = TextEditingController(text: month.month);
   TextEditingController yearController = TextEditingController(text: month.year.toString());
-  TextEditingController initialBalanceController = TextEditingController(text: month.initialBalance.toString());
+  TextEditingController initialBalanceController = TextEditingController(text: month.deposit.toString());
 
   showDialog(
     context: context,
@@ -18,15 +24,19 @@ void showEditMonthDialog(BuildContext context, Month month, Function() onMonthUp
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextFormField(
-                controller: monthController,
+              DropdownButtonFormField<String>(
+                value: selectedMonth,
                 decoration: InputDecoration(labelText: 'Month'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a month';
-                  }
-                  return null;
+                onChanged: (String? newValue) {
+                  // Update the selectedMonth with the new value
+                  selectedMonth = newValue;
                 },
+                items: months.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
               TextFormField(
                 controller: yearController,
@@ -62,9 +72,9 @@ void showEditMonthDialog(BuildContext context, Month month, Function() onMonthUp
                 await db.update(
                   'months',
                   {
-                    'month': monthController.text,
+                    'month': selectedMonth ?? 'Default Month',
                     'year': int.parse(yearController.text),
-                    'initial_balance': int.parse(initialBalanceController.text),
+                    'deposit': double.parse(initialBalanceController.text),
                   },
                   where: 'months_id = ?',
                   whereArgs: [month.monthsId],

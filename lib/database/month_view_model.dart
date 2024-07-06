@@ -2,18 +2,18 @@ class Month {
   final int? monthsId;
   final String month;
   final int year;
-  final int initialBalance;
-  final int finalBalance;
+  final double deposit;
+  final double finalBalance;
 
-  Month({this.monthsId, required this.month, required this.year, required this.initialBalance, required this.finalBalance});
+  Month({this.monthsId, required this.month, required this.year, required this.deposit,required this.finalBalance});
 
   Map<String, dynamic> toMap() {
     return {
       'months_id': monthsId,
       'month': month,
       'year': year,
-      'initial_balance': initialBalance,
-      'final_balance': finalBalance,
+      'deposit': deposit,
+      'finalBalance': finalBalance,
     };
   }
 
@@ -22,8 +22,8 @@ class Month {
       monthsId: map['months_id'],
       month: map['month'],
       year: map['year'],
-      initialBalance: map['initial_balance'],
-      finalBalance: map['final_balance'],
+      deposit: map['deposit'],
+      finalBalance: map['finalBalance'],
     );
   }
 }
