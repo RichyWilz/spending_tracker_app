@@ -6,6 +6,7 @@ import '/database/month_view_model.dart';
 import '/database/months_dialog.dart';
 import '/database/editmonth_dialog.dart';
 import '/database/deletemonth_dialog.dart';
+import '/database/sortmonths.dart';
 
 
 class MonthsScreen extends StatefulWidget {
@@ -28,10 +29,28 @@ class _MonthsScreenState extends State<MonthsScreen> {
     });
   }
 
+  // void _fetchMonths(String? month, String? year) async {
+  //   // Assuming you have a method in your DatabaseHelper class to fetch months by month and year
+  //   // Replace 'DatabaseHelper.instance.getMonthsByMonthAndYear' with your actual method
+  //   var months = await DatabaseHelper.instance.getMonthsByMonthAndYear(month, year);
+  //   setState(() {
+  //     // Update your state with the fetched months
+  //     // This might involve updating a list that your UI uses to display the months
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Months')),
+      appBar: AppBar(title: const Text('Months'),
+          actions: <Widget>[
+          IconButton(
+          icon: Icon(Icons.sort),
+      onPressed: () {
+        showSortDialog(context);
+      },
+    ),
+    ],),
       body: FutureBuilder<List<Month>>(
         future: months,
         builder: (context, snapshot) {

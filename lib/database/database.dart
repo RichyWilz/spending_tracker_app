@@ -199,5 +199,30 @@ CREATE TABLE expense (
       return Expense.fromMap(expenseMaps[i]);
     });
   }
+
+  Future<List<Month>> getMonthsByMonthAndYear({String? month, String? year}) async {
+    final db = await instance.database;
+    List<String> whereClauses = [];
+    List<dynamic> whereArguments = [];
+
+    if (month != null) {
+      whereClauses.add('month = ?');
+      whereArguments.add(month);
+    }
+    if (year != null) {
+      whereClauses.add('year = ?');
+      whereArguments.add(year);
+    }
+
+    String whereString = whereClauses.join(' AND ');
+
+    final List<Map<String, dynamic>> monthMaps = await db.query(
+      'months',
+      where: whereClauses.isNotEmpty ? whereString : null,
+      whereArgs: whereArguments.isNotEmpty ? whereArguments : null,
+    );
+
+    return monthMaps.map((map) => Month.fromMap(map)).toList();
+  }
 }
 

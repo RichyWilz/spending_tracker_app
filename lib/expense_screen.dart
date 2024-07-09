@@ -74,6 +74,15 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
     expensesFuture = DatabaseHelper.instance.getExpensesByMonthId(widget.selectedMonth.monthsId!);
   }
 
+  void getExpensesByWeek(String week) async {
+    if (week == 'All') {
+      fetchExpensesForMonth(); // Reset to initial expenses if 'All' is selected
+    } else {
+      expensesFuture = DatabaseHelper.instance.sortByWeek(widget.selectedMonth.monthsId, week);
+    }
+    setState(() {}); // Trigger a rebuild to update the UI with the new expensesFuture
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,13 +91,13 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
         actions: <Widget>[
           PopupMenuButton<String>(
             onSelected: (String value) {
-              sortWeekly(context, widget.selectedMonth.monthsId,value, refreshData);// Handle your action on selection here
+              getExpensesByWeek(value);
               print(value); // For example, print the selected week
             },
             itemBuilder: (BuildContext context) {
               return [PopupMenuItem<String>(
                 value: 'All',
-                child: Text('*'),
+                child: Text('All'),
               ),
                 PopupMenuItem<String>(
                   value: 'Week 1',
