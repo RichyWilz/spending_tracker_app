@@ -75,7 +75,11 @@ class _MonthsScreenState extends State<MonthsScreen> {
                             // builder: (context) => ExpensesScreen(monthId: month.monthsId!, month: month),
                             builder: (context) => ExpensesWidget(selectedMonth: month),
                           ),
-                        );
+                        ).then((_) {
+                          // This block is executed when you come back to the months screen.
+                          // Call a method to refresh the months screen here.
+                          refreshMonths(); // Assuming refreshMonths() is your method to refresh the data.
+                        });
                       }
                     },
                   ),

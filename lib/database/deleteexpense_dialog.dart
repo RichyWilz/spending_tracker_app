@@ -3,7 +3,7 @@ import '/database/expense_model.dart';
 import 'package:flutter/material.dart';
 import 'month_view_model.dart';
 
-void showDeleteExpenseDialog(BuildContext context,Month month, Expense expense, Function() refreshExpenses){
+void showDeleteExpenseDialog(BuildContext context,Month month, Expense expense, Function() refreshData){
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -20,21 +20,8 @@ void showDeleteExpenseDialog(BuildContext context,Month month, Expense expense, 
                 where: 'day_id = ?',
                 whereArgs: [expense.dayId],
               );
-              // onMonthUpdated();
-              // onExpenseUpdated();
-              refreshExpenses();
-
-              double fbalance = await DatabaseHelper.instance.calculateTotalExpenses(month.monthsId!);
-              await db.update(
-                'months',
-                {
-                  'finalBalance': month.deposit-fbalance,
-                },
-                where: 'months_id = ?',
-                whereArgs: [month.monthsId],
-              );
-              await DatabaseHelper.instance.getMonths();
-              // refreshMonths(); // Refresh the list of months
+              await DatabaseHelper.instance.updateMonthFinalBalance(month.monthsId);
+              refreshData();
               Navigator.of(context).pop(); // Close the dialog
             },
             child: Text('Delete'),

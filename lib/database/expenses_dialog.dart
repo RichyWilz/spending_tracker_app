@@ -13,7 +13,7 @@ final List<String> weeklist = [
 String? selectedWeek;
 
 // void showAddExpenseDialog(BuildContext context,monthId, Function refreshExpenses) {
-void showAddExpenseDialog(BuildContext context,Month month, Function refreshExpenses) {
+void showAddExpenseDialog(BuildContext context,Month month, Function refreshData) {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -75,6 +75,7 @@ void showAddExpenseDialog(BuildContext context,Month month, Function refreshExpe
           TextButton(
             child: const Text('Save'),
             onPressed: () async {
+
               final expense = Expense(
                 monthsId: month.monthsId,
                 week: selectedWeek ?? 'Default Week',
@@ -84,37 +85,23 @@ void showAddExpenseDialog(BuildContext context,Month month, Function refreshExpe
                 balance: month.finalBalance - double.parse(_amountController.text),
               );
               await DatabaseHelper.instance.createExpense(expense.toMap());
-              await DatabaseHelper.instance.calculateAdjustedBalanceForExpense(expense.dayId!, month.monthsId!, month.deposit);
-              refreshExpenses();
+              double expenseBalance = await DatabaseHelper.instance.calculateAdjustedBalanceForExpense(expense.dayId, month.monthsId, month.deposit);
 
-
-
-              double fbalance = await DatabaseHelper.instance.calculateTotalExpenses(month.monthsId!);
               final db = await DatabaseHelper.instance.database;
               await db.update(
-                'months',
+                'expense',
                 {
-                  'finalBalance': month.deposit-fbalance,
+                  'balance': expenseBalance,
                 },
-                where: 'months_id = ?',
-                whereArgs: [month.monthsId],
+                where: 'day_id = ?',
+                whereArgs: [expense.dayId],
               );
-              await DatabaseHelper.instance.getMonths();
-
+              // Update the final balance of the month
+              await DatabaseHelper.instance.updateMonthFinalBalance(month.monthsId);
+              refreshData();
               Navigator.of(context).pop();
+
               },
-              // Here, you would collect the data from the controllers
-              // and use your method to insert it into the database.
-              // For example:
-              // DatabaseHelper.instance.createExpense({
-              //   'date': _dateController.text,
-              //   'amount': int.parse(_amountController.text),
-              //   'reason': _reasonController.text,
-              //   // You might need to add 'months_id' or other fields as required
-              // });
-            //   refreshExpenses();
-            //   Navigator.of(context).pop();
-            // },
           ),
         ],
       );

@@ -67,14 +67,26 @@ void showAddMonthDialog(BuildContext context, Function refreshMonths) {
             child: Text('Save'),
               onPressed: () async {
                 // final expense = Expense();
-                // double balance = await DatabaseHelper.instance.calculateTotalExpenses(expense)
                 final month = Month(
                   month: selectedMonth ?? "Default Month",
                   year: int.parse(_yearController.text),
                   deposit: double.parse(_initialBalanceController.text),
-                  finalBalance: 0,
+                  finalBalance: double.parse(_initialBalanceController.text),
                 );
                 await DatabaseHelper.instance.createMonth(month.toMap());
+
+                // double balance = await DatabaseHelper.instance.calculateTotalExpenses(month.monthsId);
+                //
+                // final db = await DatabaseHelper.instance.database;
+                // await db.update(
+                //   'months',
+                //   {
+                //     'finalBalance': month.deposit-balance,
+                //   },
+                //   where: 'months_id = ?',
+                //   whereArgs: [month.monthsId],
+                // );
+
                 refreshMonths();
                 Navigator.of(context).pop();
               },

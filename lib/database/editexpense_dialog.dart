@@ -9,7 +9,7 @@ final List<String> weeklist = [
 ];
 String? selectedWeek;
 
-void showEditExpenseDialog(BuildContext context,Month month, Expense expense, Function() refreshExpenses) {
+void showEditExpenseDialog(BuildContext context,Month month, Expense expense, Function() refreshData) {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // TextEditingController monthController = TextEditingController(text: month.month);
   // TextEditingController yearController = TextEditingController(text: month.year.toString());
@@ -74,31 +74,24 @@ void showEditExpenseDialog(BuildContext context,Month month, Expense expense, Fu
               if (_formKey.currentState!.validate()) {
                 // Update the month entry in the database
                 final db = await DatabaseHelper.instance.database;
+                double expenseBalance = await DatabaseHelper.instance.calculateAdjustedBalanceForExpense(expense.dayId, month.monthsId, month.deposit);
+
+                // Update the final balance of the month
+                // await DatabaseHelper.instance.updateMonthFinalBalance(month.monthsId);
                 await db.update(
                   'expense',
                   {
                     'week': selectedWeek ?? 'Default Week',
                     'amount': double.parse(amountController.text),
                     'reason': reasonController.text,
-                    'balance': month.finalBalance - double.parse(amountController.text),
+                    'balance': expenseBalance,
                   },
                   where: 'day_id = ?',
                   whereArgs: [expense.dayId],
                 );
-                await DatabaseHelper.instance.calculateAdjustedBalanceForExpense(expense.dayId!, month.monthsId!, month.deposit);
-                refreshExpenses(); // Call the callback to refresh the month list
-
-                double fbalance = await DatabaseHelper.instance.calculateTotalExpenses(month.monthsId!);
-                await db.update(
-                  'months',
-                  {
-                    'finalBalance': month.deposit-fbalance,
-                  },
-                  where: 'months_id = ?',
-                  whereArgs: [month.monthsId],
-                );
-                await DatabaseHelper.instance.getMonths();
-
+                // Update the final balance of the month
+                await DatabaseHelper.instance.updateMonthFinalBalance(month.monthsId);
+                refreshData(); // Call the callback to refresh the month list
                 Navigator.of(context).pop(); // Close the dialog
               }
             },

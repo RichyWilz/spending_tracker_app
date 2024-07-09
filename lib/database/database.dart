@@ -32,9 +32,9 @@ class DatabaseHelper {
         filePath); // Join the directory path with the file name to get the complete file path
 
     return await openDatabase(path,
-        version: 1,
-        onCreate: _createDB,
-        onConfigure: _onConfigure,  //line i added
+      version: 1,
+      onCreate: _createDB,
+      onConfigure: _onConfigure, //line i added
     ); // Open the database at the specified path, with version 1, and call the _createDB function when creating the database
   }
 
@@ -54,7 +54,7 @@ CREATE TABLE months (
   month $textType,
   year $intType,
   deposit $floatType,
-  finalBalance $floatType,
+  finalBalance $floatType
 )
 '''); // Execute a SQL statement to create a "months" table with the specified columns and data types
 
@@ -95,7 +95,21 @@ CREATE TABLE expense (
     });
   }
 
-  Future<List<Expense>> getExpensesByMonthId(int monthId) async {
+  Future<Month> getMonthById(monthId) async {
+    final db = await instance.database;
+    final List<Map<String, dynamic>> monthMaps = await db.query(
+        'months', where: 'months_id = ?', whereArgs: [monthId]);
+
+    if (monthMaps.isNotEmpty) {
+      // Assuming monthId is unique, there should only be one matching record
+      return Month.fromMap(monthMaps.first);
+    } else {
+      // Handle the case where no month is found for the given monthId
+      throw Exception('Month not found for id $monthId');
+    }
+  }
+
+  Future<List<Expense>> getExpensesByMonthId(monthId) async {
     final db = await instance.database;
     final List<Map<String, dynamic>> expenseMaps = await db.query(
       'expense',
@@ -107,52 +121,83 @@ CREATE TABLE expense (
     });
   }
 
-  Future<double> calculateTotalExpenses(int monthId) async {
+
+  Future<double> calculateTotalExpenses(monthId) async {
     final db = await instance.database;
     final List<Map<String, dynamic>> sums = await db.rawQuery(
       'SELECT SUM(amount) as total FROM expense WHERE months_id = ?',
       [monthId],
     );
 
-    if (sums.isNotEmpty && sums[0]['total'] != null) {
+    // if (sums.isNotEmpty && sums[0]['total'] != null) {
+    //   return sums[0]['total'] as double;
+    // } else {
+    //   return 0;
+    // }
+    if (sums[0]['total'] != null) {
       return sums[0]['total'] as double;
     } else {
       return 0;
     }
   }
 
-  Future<double> calculateAdjustedBalanceForExpense(int expenseId, int monthId,monthDeposit) async {
+  Future<void> updateMonthFinalBalance(monthId) async {
     final db = await instance.database;
 
-    // Assuming you have a method to get the monthId for a given expenseId
-    // int monthId = await getMonthIdForExpenses(expenseId);
-
-    // Calculate the sum of expenses with IDs less than the specified expenseId
-    final List<Map<String, dynamic>> expenseSum = await db.rawQuery(
-      'SELECT SUM(amount) as total FROM expense WHERE day_id < ? AND months_id = ?',
-      [expenseId, monthId],
-    );
+    // Calculate the total expenses for the month
+    double totalExpenses = await calculateTotalExpenses(monthId);
 
     // Retrieve the initial deposit for the month
-    // final List<Map<String, dynamic>> monthDeposit = await db.query(
-    //   'months',
-    //   columns: ['deposit'],
-    //   where: 'months_id = ?',
-    //   whereArgs: [monthId],
-    // );
+    final List<Map<String, dynamic>> monthData = await db.query(
+      'months',
+      columns: ['deposit'],
+      where: 'months_id = ?',
+      whereArgs: [monthId],
+    );
+
+    if (monthData.isNotEmpty) {
+      double deposit = monthData[0]['deposit'] as double;
+      double finalBalance = deposit - totalExpenses;
+
+      // Update the finalBalance in the months table
+      await db.update(
+        'months',
+        {'finalBalance': finalBalance},
+        where: 'months_id = ?',
+        whereArgs: [monthId],
+      );
+    }
+  }
+
+  Future<double> calculateAdjustedBalanceForExpense(dayId, monthId,
+      monthDeposit) async {
+    final db = await instance.database;
+
+    // Adjust the query to select expenses with day_id less than or equal to the specified dayId
+    final List<Map<String, dynamic>> expenseSum = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM expense WHERE day_id <= ? AND months_id = ?',
+      [dayId, monthId],
+    );
 
     double totalExpenses = 0.0;
     if (expenseSum.isNotEmpty && expenseSum[0]['total'] != null) {
       totalExpenses = (expenseSum[0]['total'] as num).toDouble();
     }
 
-    double initialDeposit = 0.0;
-    if (monthDeposit.isNotEmpty && monthDeposit[0]['deposit'] != null) {
-      initialDeposit = (monthDeposit[0]['deposit'] as num).toDouble();
-    }
+    // Subtract the total expenses from the month's deposit
+    return monthDeposit - totalExpenses;
+  }
 
-    // Subtract the total expenses from the initial deposit
-    return initialDeposit - totalExpenses;
+  Future<List<Expense>> sortByWeek(monthId, String value) async {
+    final db = await DatabaseHelper.instance.database;
+    final List<Map<String, dynamic>> expenseMaps = await db.query(
+      'expense',
+      where: 'week= ? AND months_id = ?',
+      whereArgs: [value, monthId],
+    );
+    return List.generate(expenseMaps.length, (i) {
+      return Expense.fromMap(expenseMaps[i]);
+    });
   }
 }
 

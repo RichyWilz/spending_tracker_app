@@ -6,12 +6,15 @@ import '/database/database.dart';
 import '/database/expenses_dialog.dart';
 import '/database/deleteexpense_dialog.dart';
 import '/database/editexpense_dialog.dart';
+import '/database/sortByWeek_dialog.dart';
+import '/database/database.dart';
 
 
 class ExpensesWidget extends StatefulWidget {
-  final Month selectedMonth;
+  Month selectedMonth;
 
-  const ExpensesWidget({Key? key, required this.selectedMonth}) : super(key: key);
+  ExpensesWidget({Key? key, required this.selectedMonth}) : super(key: key);
+  // const ExpensesWidget({Key? key, required this.selectedMonth}) : super(key: key);
 
   @override
   _ExpensesWidgetState createState() => _ExpensesWidgetState();
@@ -20,29 +23,56 @@ class ExpensesWidget extends StatefulWidget {
 class _ExpensesWidgetState extends State<ExpensesWidget> {
   late Future<List<Expense>> expensesFuture;
   late Future<int> totalExpensesFuture;
+  // late Future<List<Month>> monthsFuture;
 
   @override
   void initState() {
     super.initState();
+    // refreshExpenses();
+    // monthsFuture = DatabaseHelper.instance.getMonths();
     if (widget.selectedMonth.monthsId != null) {
       fetchExpensesForMonth();
+      // monthsFuture = DatabaseHelper.instance.getMonths();
       // calculateTotalExpenses();
     }
   }
 
-  Future<void> refreshExpenses() async {
+  // void sortWeekly() async {
+  //   sorted = await DatabaseHelper.instance.sortByWeek(monthId, value);
+  //
+  //   setState(() {
+  //
+  //   });
+  // }
+
+  void refreshData() async {
+    // Assuming you have a method in DatabaseHelper to fetch month details including finalBalance
+    Month updatedMonth = await DatabaseHelper.instance.getMonthById(widget.selectedMonth.monthsId);
+
+    // Update the selectedMonth with the latest data
     setState(() {
+      widget.selectedMonth = updatedMonth;
       expensesFuture = DatabaseHelper.instance.getExpensesByMonthId(widget.selectedMonth.monthsId!);
     });
+
+    // Refresh expenses list as well
+    // refreshExpenses(); // Assuming this method fetches the latest expenses and updates the UI
+  }
+
+  Future<void> refreshExpenses() async {
+    try {
+      Month updatedMonth = await DatabaseHelper.instance.getMonthById(widget.selectedMonth.monthsId);
+      setState(() {
+        widget.selectedMonth = updatedMonth; // Update selectedMonth with the new data
+      });
+    } catch (e) {
+      // Handle the error, e.g., show a message
+    }
   }
 
   void fetchExpensesForMonth() {
     expensesFuture = DatabaseHelper.instance.getExpensesByMonthId(widget.selectedMonth.monthsId!);
   }
-
-  // void calculateTotalExpenses() {
-  //   totalExpensesFuture = DatabaseHelper.instance.calculateTotalExpenses(widget.selectedMonth.monthsId!);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +82,14 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
         actions: <Widget>[
           PopupMenuButton<String>(
             onSelected: (String value) {
-              // Handle your action on selection here
+              sortWeekly(context, widget.selectedMonth.monthsId,value, refreshData);// Handle your action on selection here
               print(value); // For example, print the selected week
             },
             itemBuilder: (BuildContext context) {
-              return [
+              return [PopupMenuItem<String>(
+                value: 'All',
+                child: Text('*'),
+              ),
                 PopupMenuItem<String>(
                   value: 'Week 1',
                   child: Text('Week 1'),
@@ -161,7 +194,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
                               IconButton(
                                 icon: Icon(Icons.edit),
                                 onPressed: () {
-                                  showEditExpenseDialog(context, widget.selectedMonth ,expense, refreshExpenses);
+                                  showEditExpenseDialog(context, widget.selectedMonth ,expense, refreshData);
                                   // Implement edit functionality
                                 },
                               ),
@@ -169,7 +202,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
                                   // Implement delete functionality
-                                  showDeleteExpenseDialog(context,widget.selectedMonth, expense, refreshExpenses);
+                                  showDeleteExpenseDialog(context,widget.selectedMonth, expense, refreshData);
                                 },
                               ),
                             ],
@@ -190,7 +223,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // Handle "New Expense" action
-          showAddExpenseDialog(context, widget.selectedMonth, refreshExpenses);
+          showAddExpenseDialog(context, widget.selectedMonth, refreshData);
         },
         icon: const Icon(Icons.add),
         label: const Text('New Expense'),

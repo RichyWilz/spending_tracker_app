@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '/database/database.dart';
 import 'package:spend_app/expense_screen.dart';
 import 'package:spend_app/months_view_screen.dart';
+import 'package:spend_app/splash_screen.dart';
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 
 void main() {
   // runApp(MonthsScreen());
@@ -13,11 +15,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'My Expenses App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MonthsScreen(), // Set MonthsScreen as the home screen
-    );
+      home: AnimatedSplashScreen(
+          splash: CustomSplashWidget(),
+          duration: 3000,
+          splashTransition: SplashTransition.scaleTransition,
+          backgroundColor: Colors.white,
+          splashIconSize: 600,
+          nextScreen: MonthsScreen()),
+    routes: {
+    // add routes to your screens here
+    'home':(context) =>MonthsScreen(),
+    // 'signup': (context)=> SignUpPage(),
+    // 'login': (context)=> LoginPage(), // Set MonthsScreen as the home screen
+    },);
   }
 }
 

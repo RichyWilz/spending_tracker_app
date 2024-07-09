@@ -51,11 +51,11 @@ void showEditMonthDialog(BuildContext context, Month month, Function() onMonthUp
               ),
               TextFormField(
                 controller: initialBalanceController,
-                decoration: InputDecoration(labelText: 'Initial Balance'),
+                decoration: InputDecoration(labelText: 'Deposit'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your original balance';
+                    return 'Please enter your deposit value';
                   }
                   return null;
                 },
@@ -79,6 +79,16 @@ void showEditMonthDialog(BuildContext context, Month month, Function() onMonthUp
                   where: 'months_id = ?',
                   whereArgs: [month.monthsId],
                 );
+                // double expenseBalance = await DatabaseHelper.instance.calculateAdjustedBalanceForExpense(expense.dayId, month.monthsId, month.deposit);
+                // await db.update(
+                //   'expense',
+                //   {
+                //     'balance': expenseBalance,
+                //   },
+                //   where: 'months_id = ?',
+                //   whereArgs: [month.monthsId],
+                // );
+                await DatabaseHelper.instance.updateMonthFinalBalance(month.monthsId);
                 onMonthUpdated(); // Call the callback to refresh the month list
                 Navigator.of(context).pop(); // Close the dialog
               }
