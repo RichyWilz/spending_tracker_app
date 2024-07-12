@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:spend_app/expense_detail_screen.dart';
 import '/database/expense_model.dart';
-import 'package:spend_app/months_view_screen.dart';
 import '/database/month_view_model.dart';
 import '/database/database.dart';
 import '/database/expenses_dialog.dart';
 import '/database/deleteexpense_dialog.dart';
 import '/database/editexpense_dialog.dart';
-import '/database/sortByWeek_dialog.dart';
-import '/database/database.dart';
+import '/database/deletemonth_dialog.dart';
+import '/database/editmonth_dialog.dart';
 
 
 class ExpensesWidget extends StatefulWidget {
@@ -87,7 +87,7 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expenses for ${widget.selectedMonth.month},${widget.selectedMonth.year}'),
+        title: Text('Expenses for ${widget.selectedMonth.month}, ${widget.selectedMonth.year}'),
         actions: <Widget>[
           PopupMenuButton<String>(
             onSelected: (String value) {
@@ -174,12 +174,16 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
                               icon: Icon(Icons.delete),
                               onPressed: () {
                                 // Implement delete functionality
+                                // showDeleteExpenseDialog(context,widget.selectedMonth, expense, refreshData);
+                                showDeleteConfirmationDialog(context, widget.selectedMonth, refreshData);
                               },
                             ),
                             IconButton(
                               icon: Icon(Icons.edit),
                               onPressed: () {
                                 // Implement edit functionality
+                                // showDeleteExpenseDialog(context,widget.selectedMonth, expense, refreshData);
+                                showEditMonthDialog(context, widget.selectedMonth, refreshData);
                               },
                             ),
                           ],
@@ -216,7 +220,15 @@ class _ExpensesWidgetState extends State<ExpensesWidget> {
                               ),
                             ],
                           ),
-                          // onTap: ,
+                          onTap: (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  // builder: (context) => ExpensesScreen(monthId: month.monthsId!, month: month),
+                                  builder: (context) => ExpenseDetailScreen(selectedExpense: expense),
+                                ),
+                              );
+                          },
                         ),
                       );
                     },

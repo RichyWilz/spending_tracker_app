@@ -200,29 +200,33 @@ CREATE TABLE expense (
     });
   }
 
-  Future<List<Month>> getMonthsByMonthAndYear({String? month, String? year}) async {
+  Future<List<Month>> getMonthsByMonthAndYear(String month, String year) async {
     final db = await instance.database;
-    List<String> whereClauses = [];
+    // Constructing the WHERE clause based on the inputs
+    String whereString = '';
     List<dynamic> whereArguments = [];
-
-    if (month != null) {
-      whereClauses.add('month = ?');
-      whereArguments.add(month);
+    if (month.isNotEmpty && year.isNotEmpty) {
+      whereString = 'month = ? AND year = ?';
+      whereArguments = [month, int.parse(year)];
+    } else if (month.isNotEmpty) {
+      whereString = 'month = ?';
+      whereArguments = [month];
+    } else if (year.isNotEmpty) {
+      whereString = 'year = ?';
+      whereArguments = [int.parse(year)];
     }
-    if (year != null) {
-      whereClauses.add('year = ?');
-      whereArguments.add(year);
-    }
 
-    String whereString = whereClauses.join(' AND ');
-
-    final List<Map<String, dynamic>> monthMaps = await db.query(
-      'months',
-      where: whereClauses.isNotEmpty ? whereString : null,
-      whereArgs: whereArguments.isNotEmpty ? whereArguments : null,
+    final List<Map<String, dynamic>> maps = await db.query(
+      'months', // Assuming the table name is 'months'
+      where: whereString,
+      whereArgs: whereArguments,
     );
 
-    return monthMaps.map((map) => Month.fromMap(map)).toList();
+    // Convert the List<Map<String, dynamic>> into a List<Month>
+    return List.generate(maps.length, (i) {
+      return Month.fromMap(maps[i]);
+    });
   }
 }
+
 

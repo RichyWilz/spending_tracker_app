@@ -75,7 +75,6 @@ void showEditExpenseDialog(BuildContext context,Month month, Expense expense, Fu
                 // Update the month entry in the database
                 final db = await DatabaseHelper.instance.database;
                 double expenseBalance = await DatabaseHelper.instance.calculateAdjustedBalanceForExpense(expense.dayId, month.monthsId, month.deposit);
-
                 // Update the final balance of the month
                 // await DatabaseHelper.instance.updateMonthFinalBalance(month.monthsId);
                 await db.update(
@@ -90,6 +89,15 @@ void showEditExpenseDialog(BuildContext context,Month month, Expense expense, Fu
                   whereArgs: [expense.dayId],
                 );
                 // Update the final balance of the month
+
+                // await db.update(
+                //     'expense',
+                //     {
+                //       'balance': expenseBalance,
+                //     },
+                    // where: 'day_id = ?',
+                    // whereArgs: [expense.dayId],
+                // );
                 await DatabaseHelper.instance.updateMonthFinalBalance(month.monthsId);
                 refreshData(); // Call the callback to refresh the month list
                 Navigator.of(context).pop(); // Close the dialog
