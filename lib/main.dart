@@ -3,6 +3,8 @@ import '/database/database.dart';
 import 'package:spend_app/expense_screen.dart';
 import 'package:spend_app/months_view_screen.dart';
 import 'package:spend_app/splash_screen.dart';
+import 'package:spend_app/login_screen.dart'; // Add this import
+import 'package:spend_app/registration_screen.dart'; // Add this import
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 
 void main() {
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
     routes: {
     // add routes to your screens here
     'home':(context) =>MonthsScreen(),
+    '/login': (context) => LoginScreen(),
+    '/register': (context) => RegistrationScreen(),
     // 'signup': (context)=> SignUpPage(),
     // 'login': (context)=> LoginPage(), // Set MonthsScreen as the home screen
     },);
