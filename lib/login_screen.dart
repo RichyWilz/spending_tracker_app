@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -7,13 +8,35 @@ class LoginScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Login'),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigate to a specific page
-            Navigator.pushNamed(context, '/home');
-          },
-          child: Text('Login'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              decoration: InputDecoration(labelText: 'Username'),
+            ),
+            TextField(
+              decoration: InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to a specific page
+                Navigator.pushNamed(context, '/home');
+              },
+              child: Text('Login'),
+            ),
+            SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                // Navigate to the registration screen
+                Navigator.pushNamed(context, '/register');
+              },
+              child: Text('Create Account'),
+            ),
+          ],
         ),
       ),
     );
