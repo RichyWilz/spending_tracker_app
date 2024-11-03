@@ -27,10 +27,11 @@ class MyApp extends StatelessWidget {
           splashTransition: SplashTransition.scaleTransition,
           backgroundColor: Colors.white,
           splashIconSize: 600,
-          nextScreen: MonthsScreen()),
+          nextScreen: LoginScreen(), // Direct to LoginScreen after splash
+      ),
     routes: {
     // add routes to your screens here
-    'home':(context) =>MonthsScreen(),
+    '/home': (context) => MonthsScreen(),
     '/login': (context) => LoginScreen(),
     '/register': (context) => RegistrationScreen(),
     // 'signup': (context)=> SignUpPage(),
