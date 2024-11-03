@@ -42,6 +42,13 @@ class _MonthsScreenState extends State<MonthsScreen> {
             IconButton(
                 onPressed: refreshMonths,
                 icon: Icon(Icons.refresh)),
+            IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              // Navigate to the login screen
+              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+            },
+          ),
     ],),
       body: FutureBuilder<List<Month>>(
         future: months,
